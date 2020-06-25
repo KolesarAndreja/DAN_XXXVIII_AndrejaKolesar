@@ -11,6 +11,7 @@ namespace DAN_XXXVIII_AndrejaKolesar
         #region fields 
         public Random random = new Random();
         private readonly string fileName = "PotentialRoutes.txt";
+        private readonly object locker = new object();
         //list of best routes
         public List<int> bestRoutes = new List<int>();
         //array of threads. Every thread is representing one truck
@@ -21,6 +22,7 @@ namespace DAN_XXXVIII_AndrejaKolesar
 
         public CountdownEvent countdown = new CountdownEvent(10);
         public EventWaitHandle waitHandle = new AutoResetEvent(false);
+        public ManualResetEvent manualReset = new ManualResetEvent(false);
 
         #endregion
 
@@ -45,7 +47,7 @@ namespace DAN_XXXVIII_AndrejaKolesar
             t1.Join();
             t2.Join();
 
-            Console.WriteLine("\nTRACKS LOADING: ");
+            Console.WriteLine("\nTRUCKS LOADING, DRIVING AND UNLOADING: ");
             for (int i = 0; i < 10; i++)
             {
                 int br = bestRoutes[i];
@@ -126,7 +128,7 @@ namespace DAN_XXXVIII_AndrejaKolesar
         {
             while (true)
             {
-                lock (fileName)
+                lock (locker)
                 {
                     enterCounter++;
                     if (enterCounter > 2)
@@ -178,7 +180,7 @@ namespace DAN_XXXVIII_AndrejaKolesar
             var name = Thread.CurrentThread.Name;
             AllowTwoByTwoTrucks();
             int loadingTime = Loading(name);
-            lock (fileName)
+            lock (locker)
             {
                 exitCounter--;
                 countdown.Signal();
@@ -191,7 +193,6 @@ namespace DAN_XXXVIII_AndrejaKolesar
             }
             //start with delivery when all trucks loaded
             countdown.Wait();
-
             Console.WriteLine("{0} will drive through route {1}", name, route);
             Unloading(name, loadingTime, route);
         }
