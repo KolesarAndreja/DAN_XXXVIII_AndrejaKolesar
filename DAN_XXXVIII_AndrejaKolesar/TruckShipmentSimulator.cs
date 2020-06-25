@@ -22,7 +22,6 @@ namespace DAN_XXXVIII_AndrejaKolesar
 
         public CountdownEvent countdown = new CountdownEvent(10);
         public EventWaitHandle waitHandle = new AutoResetEvent(false);
-        public ManualResetEvent manualReset = new ManualResetEvent(false);
 
         #endregion
 
